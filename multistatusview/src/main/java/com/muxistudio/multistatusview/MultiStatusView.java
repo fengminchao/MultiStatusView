@@ -14,13 +14,15 @@ import android.widget.RelativeLayout;
  * Created by ybao on 17/2/14.
  */
 
-public class MultiStatusView extends RelativeLayout implements View.OnClickListener {
+public class MultiStatusView extends RelativeLayout {
 
     private View mErrorView;
     private View mLoadingView;
     private View mEmptyView;
     private View mContentView;
     private View mNetErrorView;
+
+    private View mOnRetryView;
 
     private int mErrorViewId;
     private int mLoadingViewId;
@@ -90,7 +92,7 @@ public class MultiStatusView extends RelativeLayout implements View.OnClickListe
     public void showError() {
         if (mErrorView == null && mErrorViewId != 0) {
             mErrorView = mLayoutInflater.inflate(mErrorViewId, null);
-            setListener(mLoadingView);
+            setListener(mErrorView);
             this.addView(mErrorView, mLayoutParams);
         }
         setStatus(STATUS_ERROR);
@@ -100,7 +102,7 @@ public class MultiStatusView extends RelativeLayout implements View.OnClickListe
     public void showEmpty() {
         if (mEmptyView == null && mEmptyViewId != 0) {
             mEmptyView = mLayoutInflater.inflate(mEmptyViewId, null);
-            setListener(mLoadingView);
+            setListener(mEmptyView);
             this.addView(mEmptyView, mLayoutParams);
         }
         setStatus(STATUS_EMPTY);
@@ -110,7 +112,7 @@ public class MultiStatusView extends RelativeLayout implements View.OnClickListe
     public void showNetError() {
         if (mNetErrorView == null) {
             mNetErrorView = mLayoutInflater.inflate(mNetErrorViewId, null);
-            setListener(mLoadingView);
+            setListener(mNetErrorView);
             this.addView(mNetErrorView, mLayoutParams);
         }
         setStatus(STATUS_NET_ERROR);
@@ -124,23 +126,13 @@ public class MultiStatusView extends RelativeLayout implements View.OnClickListe
         return null;
     }
 
-    @Override
-    public void onClick(View view) {
-        if (view.getId() == R.id.view_retry) {
-            if (mOnRetryListener != null) {
-                mOnRetryListener.onClick(view);
-                showLoading();
-            }
-        }
-    }
-
     public void setListener(View layout) {
         if (layout == null) {
             return;
         }
-        View view = layout.findViewById(R.id.view_retry);
-        if (view != null && mOnRetryListener != null) {
-            view.setOnClickListener(new OnClickListener() {
+        mOnRetryView = layout.findViewById(R.id.view_retry);
+        if (mOnRetryView != null && mOnRetryListener != null) {
+            mOnRetryView.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     mOnRetryListener.onClick(view);
@@ -157,6 +149,10 @@ public class MultiStatusView extends RelativeLayout implements View.OnClickListe
         return status;
     }
 
+    /**
+     * invoke before show status view
+     * @param onRetryListener
+     */
     public void setOnRetryListener(OnClickListener onRetryListener) {
         mOnRetryListener = onRetryListener;
     }
